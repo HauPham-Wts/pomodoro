@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Pomodoro Timer</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <header class="title">
+        <h1>Pomodoro</h1>
+        <img src="imgs/tomato.png" alt="Tomato"/>
+    </header>
+    <section id="pomodoro" class="pomodoro">
+        <div class="setting">
+            <button id="btnFocus">Focus Time</button>
+            <button id="btnBreak">Break Time</button>
+        </div>
+        <div id="time" class="time">
+        </div>
+        <button id="btnPlay" class="btnPlay">START</button>
+    </section>
+    <section class="notification">
+        <p id="noti" class="noti">Time to focus!</p>
+        <!-- fa-volume-mute -->
+        <i id="btnSound" class="btn-sound fas"> 
+            <audio id="audio" src="sounds/focus_sound.mp3"></audio>
+        </i>
+    </section>
+    <section class="playListMusic">
+        <div class="playListSetting">
+            <h2>Musics</h2>
+            <input id="fileInput" type="file" accept="audio/*" multiple>
+            <label id="file-input-label" for="fileInput" class="file-input-label">
+                <i class="fas fa-plus"></i>
+            </label>
+        </div>
+        <hr>
+        <div id="music-player" class="music-player">
+            <div class="music-info">
+                <span id="music-name">No music playing</span>
+            </div>
+        </div>
+        <div class="playlist">
+            <ul id="playlist">
+                <!-- Add more songs here -->
+            </ul>
+        </div>
+    </section>
+    <audio id="buttonSound" src="sounds/button_sound.mp3"></audio>
+    <script src="pomodoro.js"></script>
+    <script src="musicPlayer.js"></script>
+    <script src="playlist.js"></script>
+</body>
+</html>
