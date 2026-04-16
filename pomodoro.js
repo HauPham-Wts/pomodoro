@@ -40,8 +40,6 @@ const enableNotificationsInputElement = document.getElementById("enableNotificat
 const autoStartNextInputElement = document.getElementById("autoStartNextInput");
 const resetSettingsButtonElement = document.getElementById("resetSettingsBtn");
 const settingsMessageElement = document.getElementById("settingsMessage");
-const fileInputLabelElement = document.getElementById("file-input-label");
-const musicPlayerElement = document.getElementById("music-player");
 
 let settings = loadSettings();
 let currentMode = "focus";
@@ -222,14 +220,6 @@ function applyTheme(mode) {
     btnPlayElement.style.color = palette.body;
     btnFocusElement.classList.toggle("active", mode === "focus");
     btnBreakElement.classList.toggle("active", isBreakMode);
-
-    if (fileInputLabelElement) {
-        fileInputLabelElement.style.backgroundColor = palette.card;
-    }
-
-    if (musicPlayerElement) {
-        musicPlayerElement.style.backgroundColor = palette.card;
-    }
 
     if (settingsPanelElement) {
         settingsPanelElement.style.backgroundColor = palette.card;
