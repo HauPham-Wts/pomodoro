@@ -3,7 +3,9 @@ const DEFAULT_SETTINGS = Object.freeze({
     focusMinutes: 25,
     shortBreakMinutes: 5,
     longBreakMinutes: 15,
-    longBreakEvery: 4
+    longBreakEvery: 4,
+    enableBrowserNotifications: false,
+    autoStartNextSession: false
 });
 
 const THEME_COLORS = {
@@ -34,6 +36,8 @@ const focusMinutesInputElement = document.getElementById("focusMinutesInput");
 const shortBreakMinutesInputElement = document.getElementById("shortBreakMinutesInput");
 const longBreakMinutesInputElement = document.getElementById("longBreakMinutesInput");
 const longBreakEveryInputElement = document.getElementById("longBreakEveryInput");
+const enableNotificationsInputElement = document.getElementById("enableNotificationsInput");
+const autoStartNextInputElement = document.getElementById("autoStartNextInput");
 const resetSettingsButtonElement = document.getElementById("resetSettingsBtn");
 const settingsMessageElement = document.getElementById("settingsMessage");
 const fileInputLabelElement = document.getElementById("file-input-label");
@@ -63,7 +67,9 @@ function sanitizeSettings(rawSettings) {
         focusMinutes: clampNumber(source.focusMinutes, 1, 180, DEFAULT_SETTINGS.focusMinutes),
         shortBreakMinutes: clampNumber(source.shortBreakMinutes, 1, 60, DEFAULT_SETTINGS.shortBreakMinutes),
         longBreakMinutes: clampNumber(source.longBreakMinutes, 1, 90, DEFAULT_SETTINGS.longBreakMinutes),
-        longBreakEvery: clampNumber(source.longBreakEvery, 2, 12, DEFAULT_SETTINGS.longBreakEvery)
+        longBreakEvery: clampNumber(source.longBreakEvery, 2, 12, DEFAULT_SETTINGS.longBreakEvery),
+        enableBrowserNotifications: Boolean(source.enableBrowserNotifications),
+        autoStartNextSession: Boolean(source.autoStartNextSession)
     };
 }
 
@@ -85,6 +91,10 @@ function saveSettings(nextSettings) {
     try {
         localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(nextSettings));
     } catch (error) {}
+}
+
+function isNotificationSupported() {
+    return typeof Notification !== "undefined";
 }
 
 function formatTime(seconds) {
@@ -184,6 +194,14 @@ function updateSettingsInputs() {
     if (longBreakEveryInputElement) {
         longBreakEveryInputElement.value = settings.longBreakEvery;
     }
+
+    if (enableNotificationsInputElement) {
+        enableNotificationsInputElement.checked = settings.enableBrowserNotifications;
+    }
+
+    if (autoStartNextInputElement) {
+        autoStartNextInputElement.checked = settings.autoStartNextSession;
+    }
 }
 
 function showSettingsMessage(message, isError) {
@@ -218,6 +236,66 @@ function applyTheme(mode) {
     }
 }
 
+async function resolveNotificationPreference(nextSettings) {
+    if (!nextSettings.enableBrowserNotifications) {
+        return { settings: nextSettings, warning: "" };
+    }
+
+    if (!isNotificationSupported()) {
+        return {
+            settings: { ...nextSettings, enableBrowserNotifications: false },
+            warning: "Settings saved, but browser notifications are not supported."
+        };
+    }
+
+    if (Notification.permission === "granted") {
+        return { settings: nextSettings, warning: "" };
+    }
+
+    if (Notification.permission === "denied") {
+        return {
+            settings: { ...nextSettings, enableBrowserNotifications: false },
+            warning: "Settings saved, but notifications are blocked by browser permission."
+        };
+    }
+
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+            return { settings: nextSettings, warning: "" };
+        }
+
+        return {
+            settings: { ...nextSettings, enableBrowserNotifications: false },
+            warning: "Settings saved, but notification permission was not granted."
+        };
+    } catch (error) {
+        return {
+            settings: { ...nextSettings, enableBrowserNotifications: false },
+            warning: "Settings saved, but notification permission request failed."
+        };
+    }
+}
+
+function sendBrowserNotification(completedMode, nextMode) {
+    if (!settings.enableBrowserNotifications || !isNotificationSupported() || Notification.permission !== "granted") {
+        return;
+    }
+
+    const completedLabel = getModeLabel(completedMode);
+    const nextLabel = getModeLabel(nextMode);
+    const autoStartText = settings.autoStartNextSession
+        ? "Started automatically."
+        : "Press START to begin.";
+
+    try {
+        new Notification(completedLabel + " complete", {
+            body: "Now: " + nextLabel + ". " + autoStartText,
+            icon: "imgs/tomato.png"
+        });
+    } catch (error) {}
+}
+
 function stopTimer() {
     if (countDownInterval) {
         clearInterval(countDownInterval);
@@ -248,18 +326,25 @@ function setMode(mode) {
 }
 
 function handleSessionComplete() {
+    const completedMode = currentMode;
     stopTimer();
     safePlay(alertAudioElement);
 
-    if (currentMode === "focus") {
+    let nextMode = "focus";
+
+    if (completedMode === "focus") {
         completedFocusSessions += 1;
         updateSessionCount();
         const shouldLongBreak = completedFocusSessions % settings.longBreakEvery === 0;
-        setMode(shouldLongBreak ? "longBreak" : "shortBreak");
-        return;
+        nextMode = shouldLongBreak ? "longBreak" : "shortBreak";
     }
 
-    setMode("focus");
+    setMode(nextMode);
+    sendBrowserNotification(completedMode, nextMode);
+
+    if (settings.autoStartNextSession) {
+        startTimer();
+    }
 }
 
 function countDown() {
@@ -280,7 +365,9 @@ function readSettingsFromInputs() {
         focusMinutes: focusMinutesInputElement ? focusMinutesInputElement.value : settings.focusMinutes,
         shortBreakMinutes: shortBreakMinutesInputElement ? shortBreakMinutesInputElement.value : settings.shortBreakMinutes,
         longBreakMinutes: longBreakMinutesInputElement ? longBreakMinutesInputElement.value : settings.longBreakMinutes,
-        longBreakEvery: longBreakEveryInputElement ? longBreakEveryInputElement.value : settings.longBreakEvery
+        longBreakEvery: longBreakEveryInputElement ? longBreakEveryInputElement.value : settings.longBreakEvery,
+        enableBrowserNotifications: enableNotificationsInputElement ? enableNotificationsInputElement.checked : settings.enableBrowserNotifications,
+        autoStartNextSession: autoStartNextInputElement ? autoStartNextInputElement.checked : settings.autoStartNextSession
     };
 }
 
@@ -288,10 +375,12 @@ function hasAdjustedValues(rawSettings, sanitizedSettings) {
     return Number(rawSettings.focusMinutes) !== sanitizedSettings.focusMinutes ||
         Number(rawSettings.shortBreakMinutes) !== sanitizedSettings.shortBreakMinutes ||
         Number(rawSettings.longBreakMinutes) !== sanitizedSettings.longBreakMinutes ||
-        Number(rawSettings.longBreakEvery) !== sanitizedSettings.longBreakEvery;
+        Number(rawSettings.longBreakEvery) !== sanitizedSettings.longBreakEvery ||
+        Boolean(rawSettings.enableBrowserNotifications) !== sanitizedSettings.enableBrowserNotifications ||
+        Boolean(rawSettings.autoStartNextSession) !== sanitizedSettings.autoStartNextSession;
 }
 
-function applySettings(nextSettings, message) {
+function applySettings(nextSettings, message, isError) {
     settings = sanitizeSettings(nextSettings);
     saveSettings(settings);
     stopTimer();
@@ -300,7 +389,7 @@ function applySettings(nextSettings, message) {
     updateTime();
 
     if (message) {
-        showSettingsMessage(message, false);
+        showSettingsMessage(message, Boolean(isError));
     }
 }
 
@@ -341,15 +430,22 @@ btnSoundElement.addEventListener("click", function () {
 });
 
 if (settingsFormElement) {
-    settingsFormElement.addEventListener("submit", function (event) {
+    settingsFormElement.addEventListener("submit", async function (event) {
         event.preventDefault();
         safePlay(buttonSoundElement);
 
         const rawSettings = readSettingsFromInputs();
         const sanitizedSettings = sanitizeSettings(rawSettings);
         const adjusted = hasAdjustedValues(rawSettings, sanitizedSettings);
+        const notificationResult = await resolveNotificationPreference(sanitizedSettings);
+        const finalSettings = notificationResult.settings;
 
-        applySettings(sanitizedSettings, adjusted ? "Saved with adjusted limits." : "Settings saved.");
+        if (notificationResult.warning) {
+            applySettings(finalSettings, notificationResult.warning, true);
+            return;
+        }
+
+        applySettings(finalSettings, adjusted ? "Saved with adjusted limits." : "Settings saved.", false);
     });
 }
 
