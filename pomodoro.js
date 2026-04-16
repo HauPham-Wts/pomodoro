@@ -23,6 +23,7 @@ const timeElement = document.getElementById("time");
 const btnPlayElement = document.getElementById("btnPlay");
 const btnFocusElement = document.getElementById("btnFocus");
 const btnBreakElement = document.getElementById("btnBreak");
+const btnSettingsElement = document.getElementById("btnSettings");
 const notiElement = document.getElementById("noti");
 const sessionCountElement = document.getElementById("sessionCount");
 const btnSoundElement = document.getElementById("btnSound");
@@ -30,7 +31,9 @@ const soundIconElement = document.getElementById("soundIcon");
 const alertAudioElement = document.getElementById("audio");
 const buttonSoundElement = document.getElementById("buttonSound");
 const pomodoroElement = document.getElementById("pomodoro");
+const settingsModalElement = document.getElementById("settingsModal");
 const settingsPanelElement = document.getElementById("settingsPanel");
+const closeSettingsButtonElement = document.getElementById("closeSettingsBtn");
 const settingsFormElement = document.getElementById("settingsForm");
 const focusMinutesInputElement = document.getElementById("focusMinutesInput");
 const shortBreakMinutesInputElement = document.getElementById("shortBreakMinutesInput");
@@ -209,6 +212,45 @@ function showSettingsMessage(message, isError) {
 
     settingsMessageElement.textContent = message;
     settingsMessageElement.style.color = isError ? "#FFD9D9" : "#FFFFFF";
+}
+
+function isSettingsModalOpen() {
+    return Boolean(settingsModalElement) && !settingsModalElement.hidden;
+}
+
+function openSettingsModal() {
+    if (!settingsModalElement) {
+        return;
+    }
+
+    settingsModalElement.hidden = false;
+    document.body.classList.add("modal-open");
+
+    if (btnSettingsElement) {
+        btnSettingsElement.setAttribute("aria-expanded", "true");
+    }
+
+    if (focusMinutesInputElement) {
+        focusMinutesInputElement.focus();
+        focusMinutesInputElement.select();
+    }
+}
+
+function closeSettingsModal(restoreFocus) {
+    if (!settingsModalElement) {
+        return;
+    }
+
+    settingsModalElement.hidden = true;
+    document.body.classList.remove("modal-open");
+
+    if (btnSettingsElement) {
+        btnSettingsElement.setAttribute("aria-expanded", "false");
+    }
+
+    if (restoreFocus && btnSettingsElement) {
+        btnSettingsElement.focus();
+    }
 }
 
 function applyTheme(mode) {
@@ -404,6 +446,34 @@ btnBreakElement.addEventListener("click", function () {
     setMode("shortBreak");
 });
 
+if (btnSettingsElement) {
+    btnSettingsElement.addEventListener("click", function () {
+        safePlay(buttonSoundElement);
+        openSettingsModal();
+    });
+}
+
+if (closeSettingsButtonElement) {
+    closeSettingsButtonElement.addEventListener("click", function () {
+        safePlay(buttonSoundElement);
+        closeSettingsModal(true);
+    });
+}
+
+if (settingsModalElement) {
+    settingsModalElement.addEventListener("click", function (event) {
+        if (event.target === settingsModalElement) {
+            closeSettingsModal(false);
+        }
+    });
+}
+
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && isSettingsModalOpen()) {
+        closeSettingsModal(true);
+    }
+});
+
 btnSoundElement.addEventListener("click", function () {
     isSoundEnabled = !isSoundEnabled;
     updateSoundButton();
@@ -454,3 +524,7 @@ applyTheme(currentMode);
 updateSoundButton();
 updateTime();
 updatePlayButton();
+
+if (btnSettingsElement) {
+    btnSettingsElement.setAttribute("aria-expanded", "false");
+}

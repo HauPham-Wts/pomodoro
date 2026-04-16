@@ -16,6 +16,10 @@
         <div class="setting">
             <button id="btnFocus">Focus Time</button>
             <button id="btnBreak">Break Time</button>
+            <button id="btnSettings" class="btn-settings" type="button" aria-label="Open timer settings" aria-controls="settingsModal" aria-expanded="false">
+                <i class="fas fa-gear" aria-hidden="true"></i>
+                <span class="btn-settings-label">Settings</span>
+            </button>
         </div>
         <div id="time" class="time">
         </div>
@@ -28,40 +32,47 @@
         </button>
     </section>
     <p id="sessionCount" class="session-count">Completed focus sessions: 0</p>
-    <section id="settingsPanel" class="pomodoro-settings">
-        <h2>Timer Settings</h2>
-        <form id="settingsForm" class="settings-form">
-            <label class="setting-field" for="focusMinutesInput">
-                Focus (minutes)
-                <input id="focusMinutesInput" type="number" min="1" max="180" step="1" required>
-            </label>
-            <label class="setting-field" for="shortBreakMinutesInput">
-                Short break (minutes)
-                <input id="shortBreakMinutesInput" type="number" min="1" max="60" step="1" required>
-            </label>
-            <label class="setting-field" for="longBreakMinutesInput">
-                Long break (minutes)
-                <input id="longBreakMinutesInput" type="number" min="1" max="90" step="1" required>
-            </label>
-            <label class="setting-field" for="longBreakEveryInput">
-                Long break every (focus sessions)
-                <input id="longBreakEveryInput" type="number" min="2" max="12" step="1" required>
-            </label>
-            <label class="setting-toggle" for="enableNotificationsInput">
-                <input id="enableNotificationsInput" type="checkbox">
-                Enable browser notifications
-            </label>
-            <label class="setting-toggle" for="autoStartNextInput">
-                <input id="autoStartNextInput" type="checkbox">
-                Auto-start next session after timer ends
-            </label>
-            <div class="settings-actions">
-                <button id="saveSettingsBtn" type="submit" class="settings-btn">Save</button>
-                <button id="resetSettingsBtn" type="button" class="settings-btn settings-btn-secondary">Reset</button>
+    <div id="settingsModal" class="settings-modal" hidden>
+        <section id="settingsPanel" class="pomodoro-settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+            <div class="settings-header">
+                <h2 id="settingsTitle">Timer Settings</h2>
+                <button id="closeSettingsBtn" class="close-settings-btn" type="button" aria-label="Close timer settings">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
             </div>
-            <p id="settingsMessage" class="settings-message" aria-live="polite"></p>
-        </form>
-    </section>
+            <form id="settingsForm" class="settings-form">
+                <label class="setting-field" for="focusMinutesInput">
+                    Focus (minutes)
+                    <input id="focusMinutesInput" type="number" min="1" max="180" step="1" required>
+                </label>
+                <label class="setting-field" for="shortBreakMinutesInput">
+                    Short break (minutes)
+                    <input id="shortBreakMinutesInput" type="number" min="1" max="60" step="1" required>
+                </label>
+                <label class="setting-field" for="longBreakMinutesInput">
+                    Long break (minutes)
+                    <input id="longBreakMinutesInput" type="number" min="1" max="90" step="1" required>
+                </label>
+                <label class="setting-field" for="longBreakEveryInput">
+                    Long break every (focus sessions)
+                    <input id="longBreakEveryInput" type="number" min="2" max="12" step="1" required>
+                </label>
+                <label class="setting-toggle" for="enableNotificationsInput">
+                    <input id="enableNotificationsInput" type="checkbox">
+                    Enable browser notifications
+                </label>
+                <label class="setting-toggle" for="autoStartNextInput">
+                    <input id="autoStartNextInput" type="checkbox">
+                    Auto-start next session after timer ends
+                </label>
+                <div class="settings-actions">
+                    <button id="saveSettingsBtn" type="submit" class="settings-btn">Save</button>
+                    <button id="resetSettingsBtn" type="button" class="settings-btn settings-btn-secondary">Reset</button>
+                </div>
+                <p id="settingsMessage" class="settings-message" aria-live="polite"></p>
+            </form>
+        </section>
+    </div>
     <audio id="audio" src="sounds/button_sound.mp3"></audio>
     <audio id="buttonSound" src="sounds/button_sound.mp3"></audio>
     <script src="pomodoro.js"></script>
