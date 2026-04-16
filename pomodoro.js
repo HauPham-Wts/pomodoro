@@ -23,6 +23,7 @@ const timeElement = document.getElementById("time");
 const btnPlayElement = document.getElementById("btnPlay");
 const btnFocusElement = document.getElementById("btnFocus");
 const btnBreakElement = document.getElementById("btnBreak");
+const btnLongBreakElement = document.getElementById("btnLongBreak");
 const btnSettingsElement = document.getElementById("btnSettings");
 const notiElement = document.getElementById("noti");
 const sessionCountElement = document.getElementById("sessionCount");
@@ -166,7 +167,7 @@ function updateSessionCount() {
         return;
     }
 
-    sessionCountElement.textContent = "Completed focus sessions: " + completedFocusSessions;
+    sessionCountElement.textContent = "#" + (completedFocusSessions + 1);
 }
 
 function updateSoundButton() {
@@ -261,7 +262,11 @@ function applyTheme(mode) {
     pomodoroElement.style.background = palette.card;
     btnPlayElement.style.color = palette.body;
     btnFocusElement.classList.toggle("active", mode === "focus");
-    btnBreakElement.classList.toggle("active", isBreakMode);
+    btnBreakElement.classList.toggle("active", mode === "shortBreak");
+
+    if (btnLongBreakElement) {
+        btnLongBreakElement.classList.toggle("active", mode === "longBreak");
+    }
 
     if (settingsPanelElement) {
         settingsPanelElement.style.backgroundColor = palette.card;
@@ -445,6 +450,13 @@ btnBreakElement.addEventListener("click", function () {
     safePlay(buttonSoundElement);
     setMode("shortBreak");
 });
+
+if (btnLongBreakElement) {
+    btnLongBreakElement.addEventListener("click", function () {
+        safePlay(buttonSoundElement);
+        setMode("longBreak");
+    });
+}
 
 if (btnSettingsElement) {
     btnSettingsElement.addEventListener("click", function () {

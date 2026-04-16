@@ -8,30 +8,64 @@
     <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-    <header class="title">
-        <h1>Pomodoro</h1>
-        <img src="imgs/tomato.png" alt="Tomato"/>
-    </header>
-    <section id="pomodoro" class="pomodoro">
-        <div class="setting">
-            <button id="btnFocus">Focus Time</button>
-            <button id="btnBreak">Break Time</button>
-            <button id="btnSettings" class="btn-settings" type="button" aria-label="Open timer settings" aria-controls="settingsModal" aria-expanded="false">
-                <i class="fas fa-gear" aria-hidden="true"></i>
-                <span class="btn-settings-label">Settings</span>
+    <main class="app-shell">
+        <header class="topbar">
+            <div class="brand">
+                <img src="imgs/tomato.png" alt="Tomato"/>
+                <h1>Pomofocus</h1>
+            </div>
+            <div class="top-actions">
+                <button class="top-action-btn" type="button" aria-label="View reports">
+                    <i class="far fa-chart-bar" aria-hidden="true"></i>
+                    <span>Report</span>
+                </button>
+                <button id="btnSettings" class="top-action-btn" type="button" aria-label="Open timer settings" aria-controls="settingsModal" aria-expanded="false">
+                    <i class="fas fa-gear" aria-hidden="true"></i>
+                    <span>Setting</span>
+                </button>
+                <button class="top-action-btn" type="button" aria-label="Sign in">
+                    <i class="far fa-user-circle" aria-hidden="true"></i>
+                    <span>Sign In</span>
+                </button>
+                <button class="top-action-btn icon-only" type="button" aria-label="More options">
+                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+            </div>
+        </header>
+
+        <section id="pomodoro" class="pomodoro">
+            <div class="setting">
+                <button id="btnFocus">Pomodoro</button>
+                <button id="btnBreak">Short Break</button>
+                <button id="btnLongBreak">Long Break</button>
+            </div>
+            <div id="time" class="time"></div>
+            <button id="btnPlay" class="btnPlay">START</button>
+        </section>
+
+        <p id="sessionCount" class="session-count">#1</p>
+
+        <section class="notification">
+            <p id="noti" class="noti">Time to focus!</p>
+            <button id="btnSound" class="btn-sound" type="button" aria-label="Toggle sound">
+                <i id="soundIcon" class="fas fa-volume-up" aria-hidden="true"></i>
             </button>
-        </div>
-        <div id="time" class="time">
-        </div>
-        <button id="btnPlay" class="btnPlay">START</button>
-    </section>
-    <section class="notification">
-        <p id="noti" class="noti">Time to focus!</p>
-        <button id="btnSound" class="btn-sound" type="button" aria-label="Toggle sound">
-            <i id="soundIcon" class="fas fa-volume-up" aria-hidden="true"></i>
-        </button>
-    </section>
-    <p id="sessionCount" class="session-count">Completed focus sessions: 0</p>
+        </section>
+
+        <section class="tasks-board" aria-label="Tasks board">
+            <div class="tasks-head">
+                <h2>Tasks</h2>
+                <button class="tasks-menu-btn" type="button" aria-label="Task options">
+                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+            </div>
+            <button class="add-task-btn" type="button">
+                <i class="fas fa-circle-plus" aria-hidden="true"></i>
+                <span>Add Task</span>
+            </button>
+        </section>
+    </main>
+
     <div id="settingsModal" class="settings-modal" hidden>
         <section id="settingsPanel" class="pomodoro-settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
             <div class="settings-header">

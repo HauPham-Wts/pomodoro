@@ -1,158 +1,256 @@
-@import url('https://fonts.googleapis.com/css2?family=DSEG7-Classic:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DSEG7-Classic:wght@400;700&family=Nunito:wght@500;700;800&display=swap');
 
-/* general */
+:root {
+    --bg-main: #ba4949;
+    --bg-card: #c15c5c;
+    --bg-soft: rgba(255, 255, 255, 0.16);
+    --bg-soft-strong: rgba(0, 0, 0, 0.16);
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.78);
+    --line: rgba(255, 255, 255, 0.28);
+    --line-dashed: rgba(255, 255, 255, 0.35);
+}
+
 * {
-    font-family: ArialRounded, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    color: white;
+    font-family: "Nunito", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* border: 1px solid black; */
 }
 
-/* body */
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background-color: #BA4949;
-    position: relative;
+    background-color: var(--bg-main);
     min-height: 100vh;
-    padding: 20px 14px 30px;
+    padding: 10px 14px 28px;
 }
 
-/* header */
-.title {
+.app-shell {
+    width: min(100%, 620px);
+    margin: 0 auto;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    margin-top: 8px;
-}
-h1 {
-    margin: 0;
-    font-size: 40px;
-    color: white;
-}
-.title img {
-    width: 46px;
-    height: 46px;
-    margin-left: 10px;
-}
-
-/* pomodoro section */
-.pomodoro {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     flex-direction: column;
-    color: white;
-    width: min(90vw, 520px);
-    background-color: #C15C5C;
-    margin-top: 16px;
-    padding: 24px 20px;
-    border-radius: 8px;
-    position: relative;
-}
-.setting {
-    display: flex;
-    justify-content: center;
     align-items: center;
-    flex-direction: row;
-    color: white;
-    gap: 15px;
 }
-.setting button {
-    font-size: 18px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    background: none;
-    padding: 5px 10px;
-    color: white;
+
+.topbar {
+    width: 100%;
+    padding: 8px 0 14px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.14);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
-.setting button.active {
-    background-color: rgba(0, 0, 0, 0.15);
-    font-weight: bold;
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
-.btn-settings {
-    display: inline-flex;
+
+.brand img {
+    width: 24px;
+    height: 24px;
+}
+
+.brand h1 {
+    font-size: 33px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.top-actions {
+    display: flex;
     align-items: center;
     gap: 6px;
 }
-.btn-settings i {
-    font-size: 15px;
-}
-.btn-settings-label {
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: 1;
-}
-.time {
-    display: flex;
-    flex-direction: row;
-    font-size: clamp(64px, 18vw, 120px);
-    font-family: 'DSEG7-Classic', monospace;
-    font-weight: bold;
-    margin-bottom: 15px;
-    line-height: 1;
-}
-.btnPlay {
-    font-size: 20px;
-    background-color: white;
-    color: #BA4949;
+
+.top-action-btn {
     border: none;
-    border-radius: 4px;
-    padding: 1% 5%;
-    font-weight: bold;
-    width: min(260px, 75%);
-    height: 56px;
+    background: var(--bg-soft);
+    border-radius: 6px;
+    padding: 7px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
     cursor: pointer;
-    letter-spacing: 0.5px;
 }
 
-/* Notification section */
-.notification {
+.top-action-btn i {
+    font-size: 13px;
+}
+
+.top-action-btn.icon-only {
+    width: 38px;
+    height: 34px;
+    justify-content: center;
+    padding: 0;
+}
+
+.top-action-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.pomodoro {
+    width: min(100%, 502px);
+    margin-top: 38px;
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px 26px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    align-items: center;
+}
+
+.setting {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.setting button {
+    border: none;
+    background: transparent;
+    font-size: 21px;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 7px 12px;
+    cursor: pointer;
+}
+
+.setting button.active {
+    background: var(--bg-soft-strong);
+}
+
+.time {
+    margin-top: 14px;
+    margin-bottom: 24px;
+    font-size: clamp(90px, 15.8vw, 166px);
+    line-height: 0.95;
+    font-family: "DSEG7-Classic", monospace;
+    letter-spacing: 2px;
+}
+
+.btnPlay {
+    border: none;
+    border-bottom: 6px solid rgba(0, 0, 0, 0.12);
+    background: #fff;
+    color: var(--bg-main);
+    border-radius: 6px;
+    width: min(100%, 210px);
+    height: 66px;
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.btnPlay:active {
+    transform: translateY(2px);
+    border-bottom-width: 4px;
+}
+
+.session-count {
+    margin-top: 16px;
+    font-size: 31px;
+    opacity: 0.68;
+    font-weight: 700;
+}
+
+.notification {
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.noti {
+    font-size: 38px;
+    font-weight: 700;
+}
+
+.btn-sound {
+    border: none;
+    background: transparent;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.72;
+}
+
+.btn-sound:hover {
+    background: rgba(255, 255, 255, 0.15);
+    opacity: 1;
+}
+
+.tasks-board {
+    width: min(100%, 502px);
+    margin-top: 24px;
+}
+
+.tasks-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 11px;
+}
+
+.tasks-head h2 {
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.tasks-menu-btn {
+    width: 38px;
+    height: 34px;
+    border: none;
+    border-radius: 6px;
+    background: var(--bg-soft);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.tasks-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.add-task-btn {
+    margin-top: 18px;
+    width: 100%;
+    min-height: 64px;
+    border-radius: 8px;
+    border: 2px dashed var(--line-dashed);
+    background: rgba(0, 0, 0, 0.06);
+    display: inline-flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin-top: 20px;
-}
-.noti {
-    font-size: 18px;
-    margin-top: 0;
-}
-.btn-sound {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    background: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    font-size: 27px;
+    font-weight: 700;
+    color: var(--text-dim);
     cursor: pointer;
 }
-.btn-sound i {
-    font-size: 16px;
-}
-.btn-sound:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-.btn-sound:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.8);
-    outline-offset: 2px;
-}
-.session-count {
-    margin-top: 10px;
-    font-size: 14px;
-    opacity: 0.9;
+
+.add-task-btn span,
+.add-task-btn i {
+    color: var(--text-dim);
 }
 
-/* Timer settings */
+.add-task-btn:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
 .settings-modal {
     position: fixed;
     inset: 0;
@@ -163,22 +261,25 @@ h1 {
     padding: 18px;
     background: rgba(0, 0, 0, 0.45);
 }
+
 .settings-modal[hidden] {
     display: none;
 }
+
 body.modal-open {
     overflow: hidden;
 }
+
 .pomodoro-settings {
     width: min(92vw, 540px);
-    margin-top: 0;
     padding: 16px;
     border-radius: 10px;
-    background-color: #C15C5C;
+    background-color: var(--bg-card);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
     max-height: min(86vh, 680px);
     overflow: auto;
 }
+
 .settings-header {
     display: flex;
     justify-content: space-between;
@@ -186,40 +287,41 @@ body.modal-open {
     gap: 12px;
     margin-bottom: 12px;
 }
+
 .settings-header h2 {
-    font-size: 16px;
-    margin: 0;
+    font-size: 27px;
+    font-weight: 800;
 }
+
 .close-settings-btn {
     width: 34px;
     height: 34px;
     border-radius: 50%;
     border: 1px solid rgba(255, 255, 255, 0.65);
     background: transparent;
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
 }
+
 .close-settings-btn:hover {
     background: rgba(255, 255, 255, 0.12);
 }
-.close-settings-btn:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.85);
-    outline-offset: 2px;
-}
+
 .settings-form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
 }
+
 .setting-field {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    font-size: 13px;
-    opacity: 0.95;
+    font-size: 20px;
 }
+
 .setting-field input {
     width: 100%;
     border: none;
@@ -227,97 +329,107 @@ body.modal-open {
     color: #222;
     background: #fff;
     padding: 8px 9px;
-    font-size: 14px;
+    font-size: 20px;
 }
-.setting-field input:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.85);
-    outline-offset: 2px;
-}
+
 .setting-toggle {
     grid-column: 1 / -1;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
-    opacity: 0.95;
+    font-size: 20px;
 }
+
 .setting-toggle input {
     width: 16px;
     height: 16px;
     accent-color: #fff;
 }
+
 .settings-actions {
     grid-column: 1 / -1;
     display: flex;
     gap: 10px;
     margin-top: 4px;
 }
+
 .settings-btn {
     border: none;
     border-radius: 6px;
     padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #BA4949;
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--bg-main);
     background: #fff;
     cursor: pointer;
 }
+
 .settings-btn-secondary {
     color: #444;
 }
+
 .settings-message {
     grid-column: 1 / -1;
     margin-top: 2px;
-    font-size: 12px;
+    font-size: 18px;
     min-height: 18px;
     opacity: 0.95;
 }
 
-@media (max-width: 600px) {
-    h1 {
-        font-size: 34px;
+@media (max-width: 720px) {
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .title img {
-        width: 38px;
-        height: 38px;
+    .top-actions {
+        width: 100%;
+        flex-wrap: wrap;
     }
 
-    .pomodoro {
-        padding: 20px 14px;
+    .brand h1 {
+        font-size: 28px;
     }
 
     .setting {
-        gap: 8px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     .setting button {
-        font-size: 16px;
-        padding: 6px 8px;
+        font-size: 20px;
+        padding: 6px 10px;
     }
 
-    .btnPlay {
-        width: min(240px, 90%);
+    .time {
+        font-size: clamp(78px, 20vw, 120px);
+        letter-spacing: 1px;
     }
 
     .noti {
+        font-size: 30px;
         text-align: center;
-        font-size: 16px;
     }
 
-    .settings-modal {
-        padding: 12px;
+    .tasks-head h2 {
+        font-size: 26px;
     }
 
-    .pomodoro-settings {
-        max-height: 84vh;
+    .add-task-btn {
+        font-size: 23px;
     }
 
     .settings-form {
         grid-template-columns: 1fr;
     }
 
-    .settings-actions {
-        flex-wrap: wrap;
+    .setting-field,
+    .setting-field input,
+    .setting-toggle,
+    .settings-btn,
+    .settings-message,
+    .settings-header h2 {
+        font-size: 18px;
     }
 }
