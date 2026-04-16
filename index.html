@@ -28,6 +28,32 @@
         </button>
     </section>
     <p id="sessionCount" class="session-count">Completed focus sessions: 0</p>
+    <section id="settingsPanel" class="pomodoro-settings">
+        <h2>Timer Settings</h2>
+        <form id="settingsForm" class="settings-form">
+            <label class="setting-field" for="focusMinutesInput">
+                Focus (minutes)
+                <input id="focusMinutesInput" type="number" min="1" max="180" step="1" required>
+            </label>
+            <label class="setting-field" for="shortBreakMinutesInput">
+                Short break (minutes)
+                <input id="shortBreakMinutesInput" type="number" min="1" max="60" step="1" required>
+            </label>
+            <label class="setting-field" for="longBreakMinutesInput">
+                Long break (minutes)
+                <input id="longBreakMinutesInput" type="number" min="1" max="90" step="1" required>
+            </label>
+            <label class="setting-field" for="longBreakEveryInput">
+                Long break every (focus sessions)
+                <input id="longBreakEveryInput" type="number" min="2" max="12" step="1" required>
+            </label>
+            <div class="settings-actions">
+                <button id="saveSettingsBtn" type="submit" class="settings-btn">Save</button>
+                <button id="resetSettingsBtn" type="button" class="settings-btn settings-btn-secondary">Reset</button>
+            </div>
+            <p id="settingsMessage" class="settings-message" aria-live="polite"></p>
+        </form>
+    </section>
     <section class="playListMusic">
         <div class="playListSetting">
             <h2>Musics</h2>

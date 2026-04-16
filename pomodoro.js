@@ -1,7 +1,10 @@
-const FOCUS_DURATION_SECONDS = 25 * 60;
-const SHORT_BREAK_DURATION_SECONDS = 5 * 60;
-const LONG_BREAK_DURATION_SECONDS = 15 * 60;
-const LONG_BREAK_EVERY = 4;
+const SETTINGS_STORAGE_KEY = "pomodoro.settings.v1";
+const DEFAULT_SETTINGS = Object.freeze({
+    focusMinutes: 25,
+    shortBreakMinutes: 5,
+    longBreakMinutes: 15,
+    longBreakEvery: 4
+});
 
 const THEME_COLORS = {
     focus: {
@@ -14,13 +17,6 @@ const THEME_COLORS = {
     }
 };
 
-let currentMode = "focus";
-let totalSeconds = FOCUS_DURATION_SECONDS;
-let completedFocusSessions = 0;
-let countDownInterval = null;
-let isCountDown = false;
-let isSoundEnabled = true;
-
 const timeElement = document.getElementById("time");
 const btnPlayElement = document.getElementById("btnPlay");
 const btnFocusElement = document.getElementById("btnFocus");
@@ -32,8 +28,64 @@ const soundIconElement = document.getElementById("soundIcon");
 const alertAudioElement = document.getElementById("audio");
 const buttonSoundElement = document.getElementById("buttonSound");
 const pomodoroElement = document.getElementById("pomodoro");
+const settingsPanelElement = document.getElementById("settingsPanel");
+const settingsFormElement = document.getElementById("settingsForm");
+const focusMinutesInputElement = document.getElementById("focusMinutesInput");
+const shortBreakMinutesInputElement = document.getElementById("shortBreakMinutesInput");
+const longBreakMinutesInputElement = document.getElementById("longBreakMinutesInput");
+const longBreakEveryInputElement = document.getElementById("longBreakEveryInput");
+const resetSettingsButtonElement = document.getElementById("resetSettingsBtn");
+const settingsMessageElement = document.getElementById("settingsMessage");
 const fileInputLabelElement = document.getElementById("file-input-label");
 const musicPlayerElement = document.getElementById("music-player");
+
+let settings = loadSettings();
+let currentMode = "focus";
+let totalSeconds = settings.focusMinutes * 60;
+let completedFocusSessions = 0;
+let countDownInterval = null;
+let isCountDown = false;
+let isSoundEnabled = true;
+
+function clampNumber(value, min, max, fallback) {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) {
+        return fallback;
+    }
+
+    return Math.min(max, Math.max(min, Math.round(parsed)));
+}
+
+function sanitizeSettings(rawSettings) {
+    const source = rawSettings || {};
+
+    return {
+        focusMinutes: clampNumber(source.focusMinutes, 1, 180, DEFAULT_SETTINGS.focusMinutes),
+        shortBreakMinutes: clampNumber(source.shortBreakMinutes, 1, 60, DEFAULT_SETTINGS.shortBreakMinutes),
+        longBreakMinutes: clampNumber(source.longBreakMinutes, 1, 90, DEFAULT_SETTINGS.longBreakMinutes),
+        longBreakEvery: clampNumber(source.longBreakEvery, 2, 12, DEFAULT_SETTINGS.longBreakEvery)
+    };
+}
+
+function loadSettings() {
+    try {
+        const storedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+        if (!storedSettings) {
+            return { ...DEFAULT_SETTINGS };
+        }
+
+        const parsedSettings = JSON.parse(storedSettings);
+        return sanitizeSettings(parsedSettings);
+    } catch (error) {
+        return { ...DEFAULT_SETTINGS };
+    }
+}
+
+function saveSettings(nextSettings) {
+    try {
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(nextSettings));
+    } catch (error) {}
+}
 
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
@@ -43,14 +95,14 @@ function formatTime(seconds) {
 
 function getDurationByMode(mode) {
     if (mode === "focus") {
-        return FOCUS_DURATION_SECONDS;
+        return settings.focusMinutes * 60;
     }
 
     if (mode === "longBreak") {
-        return LONG_BREAK_DURATION_SECONDS;
+        return settings.longBreakMinutes * 60;
     }
 
-    return SHORT_BREAK_DURATION_SECONDS;
+    return settings.shortBreakMinutes * 60;
 }
 
 function getModeLabel(mode) {
@@ -116,6 +168,33 @@ function updateSoundButton() {
     btnSoundElement.setAttribute("aria-label", isSoundEnabled ? "Mute sounds" : "Unmute sounds");
 }
 
+function updateSettingsInputs() {
+    if (focusMinutesInputElement) {
+        focusMinutesInputElement.value = settings.focusMinutes;
+    }
+
+    if (shortBreakMinutesInputElement) {
+        shortBreakMinutesInputElement.value = settings.shortBreakMinutes;
+    }
+
+    if (longBreakMinutesInputElement) {
+        longBreakMinutesInputElement.value = settings.longBreakMinutes;
+    }
+
+    if (longBreakEveryInputElement) {
+        longBreakEveryInputElement.value = settings.longBreakEvery;
+    }
+}
+
+function showSettingsMessage(message, isError) {
+    if (!settingsMessageElement) {
+        return;
+    }
+
+    settingsMessageElement.textContent = message;
+    settingsMessageElement.style.color = isError ? "#FFD9D9" : "#FFFFFF";
+}
+
 function applyTheme(mode) {
     const isBreakMode = mode !== "focus";
     const palette = isBreakMode ? THEME_COLORS.break : THEME_COLORS.focus;
@@ -132,6 +211,10 @@ function applyTheme(mode) {
 
     if (musicPlayerElement) {
         musicPlayerElement.style.backgroundColor = palette.card;
+    }
+
+    if (settingsPanelElement) {
+        settingsPanelElement.style.backgroundColor = palette.card;
     }
 }
 
@@ -171,7 +254,7 @@ function handleSessionComplete() {
     if (currentMode === "focus") {
         completedFocusSessions += 1;
         updateSessionCount();
-        const shouldLongBreak = completedFocusSessions % LONG_BREAK_EVERY === 0;
+        const shouldLongBreak = completedFocusSessions % settings.longBreakEvery === 0;
         setMode(shouldLongBreak ? "longBreak" : "shortBreak");
         return;
     }
@@ -190,6 +273,35 @@ function countDown() {
     }
 
     updateTime();
+}
+
+function readSettingsFromInputs() {
+    return {
+        focusMinutes: focusMinutesInputElement ? focusMinutesInputElement.value : settings.focusMinutes,
+        shortBreakMinutes: shortBreakMinutesInputElement ? shortBreakMinutesInputElement.value : settings.shortBreakMinutes,
+        longBreakMinutes: longBreakMinutesInputElement ? longBreakMinutesInputElement.value : settings.longBreakMinutes,
+        longBreakEvery: longBreakEveryInputElement ? longBreakEveryInputElement.value : settings.longBreakEvery
+    };
+}
+
+function hasAdjustedValues(rawSettings, sanitizedSettings) {
+    return Number(rawSettings.focusMinutes) !== sanitizedSettings.focusMinutes ||
+        Number(rawSettings.shortBreakMinutes) !== sanitizedSettings.shortBreakMinutes ||
+        Number(rawSettings.longBreakMinutes) !== sanitizedSettings.longBreakMinutes ||
+        Number(rawSettings.longBreakEvery) !== sanitizedSettings.longBreakEvery;
+}
+
+function applySettings(nextSettings, message) {
+    settings = sanitizeSettings(nextSettings);
+    saveSettings(settings);
+    stopTimer();
+    totalSeconds = getDurationByMode(currentMode);
+    updateSettingsInputs();
+    updateTime();
+
+    if (message) {
+        showSettingsMessage(message, false);
+    }
 }
 
 btnPlayElement.addEventListener("click", function () {
@@ -228,8 +340,30 @@ btnSoundElement.addEventListener("click", function () {
     }
 });
 
+if (settingsFormElement) {
+    settingsFormElement.addEventListener("submit", function (event) {
+        event.preventDefault();
+        safePlay(buttonSoundElement);
+
+        const rawSettings = readSettingsFromInputs();
+        const sanitizedSettings = sanitizeSettings(rawSettings);
+        const adjusted = hasAdjustedValues(rawSettings, sanitizedSettings);
+
+        applySettings(sanitizedSettings, adjusted ? "Saved with adjusted limits." : "Settings saved.");
+    });
+}
+
+if (resetSettingsButtonElement) {
+    resetSettingsButtonElement.addEventListener("click", function () {
+        safePlay(buttonSoundElement);
+        applySettings(DEFAULT_SETTINGS, "Settings reset to default values.");
+    });
+}
+
+saveSettings(settings);
 notiElement.textContent = getNotificationText(currentMode);
 updateSessionCount();
+updateSettingsInputs();
 applyTheme(currentMode);
 updateSoundButton();
 updateTime();
