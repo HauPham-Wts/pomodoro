@@ -36,6 +36,7 @@
 
         <section class="notification">
             <p id="noti" class="noti">Time to focus!</p>
+            <button id="stopAlarmBtn" class="stop-alarm-btn" type="button" hidden>Stop Alarm</button>
         </section>
 
         <section class="tasks-board" aria-label="Tasks board">
@@ -118,7 +119,8 @@
         </section>
     </div>
 
-    <audio id="audio" src="sounds/button_sound.mp3"></audio>
+    <audio id="startPauseAudio" src="sounds/start_pause.ogg" preload="auto"></audio>
+    <audio id="timerEndAudio" src="sounds/timer_end.ogg" preload="auto"></audio>
     <script src="pomodoro.js"></script>
 </body>
 </html>

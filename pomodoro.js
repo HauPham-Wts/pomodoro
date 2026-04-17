@@ -29,7 +29,8 @@ const btnLongBreakElement = document.getElementById("btnLongBreak");
 const btnSettingsElement = document.getElementById("btnSettings");
 const notiElement = document.getElementById("noti");
 const sessionCountElement = document.getElementById("sessionCount");
-const alertAudioElement = document.getElementById("audio");
+const startPauseAudioElement = document.getElementById("startPauseAudio");
+const timerEndAudioElement = document.getElementById("timerEndAudio");
 const pomodoroElement = document.getElementById("pomodoro");
 const settingsModalElement = document.getElementById("settingsModal");
 const settingsPanelElement = document.getElementById("settingsPanel");
@@ -53,6 +54,7 @@ const cancelTaskButtonElement = document.getElementById("cancelTaskBtn");
 const taskFormElement = document.getElementById("taskForm");
 const taskInputElement = document.getElementById("taskInput");
 const taskMessageElement = document.getElementById("taskMessage");
+const stopAlarmButtonElement = document.getElementById("stopAlarmBtn");
 
 let settings = loadSettings();
 let tasks = loadTasks();
@@ -61,6 +63,7 @@ let totalSeconds = settings.focusMinutes * 60;
 let completedFocusSessions = 0;
 let countDownInterval = null;
 let isCountDown = false;
+let alarmAutoStopTimeoutId = null;
 
 function clampNumber(value, min, max, fallback) {
     const parsed = Number(value);
@@ -319,6 +322,45 @@ function safePlay(audioElement) {
     if (playPromise && typeof playPromise.catch === "function") {
         playPromise.catch(function () {});
     }
+}
+
+function stopTimerEndAlarm() {
+    if (alarmAutoStopTimeoutId) {
+        clearTimeout(alarmAutoStopTimeoutId);
+        alarmAutoStopTimeoutId = null;
+    }
+
+    if (timerEndAudioElement) {
+        timerEndAudioElement.pause();
+        timerEndAudioElement.currentTime = 0;
+        timerEndAudioElement.loop = false;
+    }
+
+    if (stopAlarmButtonElement) {
+        stopAlarmButtonElement.hidden = true;
+    }
+}
+
+function startTimerEndAlarm() {
+    if (!timerEndAudioElement) {
+        return;
+    }
+
+    stopTimerEndAlarm();
+    timerEndAudioElement.loop = true;
+
+    const playPromise = timerEndAudioElement.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(function () {});
+    }
+
+    if (stopAlarmButtonElement) {
+        stopAlarmButtonElement.hidden = false;
+    }
+
+    alarmAutoStopTimeoutId = setTimeout(function () {
+        stopTimerEndAlarm();
+    }, 10000);
 }
 
 function updateTime() {
@@ -587,6 +629,7 @@ function setMode(mode) {
 function handleSessionComplete() {
     const completedMode = currentMode;
     stopTimer();
+    startTimerEndAlarm();
 
     let nextMode = "focus";
 
@@ -652,7 +695,7 @@ function applySettings(nextSettings, message, isError) {
 }
 
 btnPlayElement.addEventListener("click", function () {
-    safePlay(alertAudioElement);
+    safePlay(startPauseAudioElement);
 
     if (isCountDown) {
         stopTimer();
@@ -742,6 +785,12 @@ if (tasksListElement) {
         if (actionButtonElement.dataset.action === "delete") {
             deleteTask(taskId);
         }
+    });
+}
+
+if (stopAlarmButtonElement) {
+    stopAlarmButtonElement.addEventListener("click", function () {
+        stopTimerEndAlarm();
     });
 }
 

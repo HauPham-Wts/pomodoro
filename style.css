@@ -175,6 +175,20 @@ body {
     font-weight: 400;
 }
 
+.stop-alarm-btn {
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.stop-alarm-btn:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
 .tasks-board {
     width: min(100%, 500px);
     margin-top: 18px;
@@ -539,6 +553,11 @@ body.modal-open {
     .noti {
         font-size: 24px;
         text-align: center;
+    }
+
+    .stop-alarm-btn {
+        font-size: 13px;
+        padding: 4px 9px;
     }
 
     .tasks-head h2 {
