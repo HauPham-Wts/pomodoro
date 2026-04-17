@@ -175,24 +175,6 @@ body {
     font-weight: 400;
 }
 
-.btn-sound {
-    border: none;
-    background: transparent;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0.72;
-}
-
-.btn-sound:hover {
-    background: rgba(255, 255, 255, 0.15);
-    opacity: 1;
-}
-
 .tasks-board {
     width: min(100%, 500px);
     margin-top: 18px;

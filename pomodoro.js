@@ -29,8 +29,6 @@ const btnLongBreakElement = document.getElementById("btnLongBreak");
 const btnSettingsElement = document.getElementById("btnSettings");
 const notiElement = document.getElementById("noti");
 const sessionCountElement = document.getElementById("sessionCount");
-const btnSoundElement = document.getElementById("btnSound");
-const soundIconElement = document.getElementById("soundIcon");
 const alertAudioElement = document.getElementById("audio");
 const pomodoroElement = document.getElementById("pomodoro");
 const settingsModalElement = document.getElementById("settingsModal");
@@ -63,7 +61,6 @@ let totalSeconds = settings.focusMinutes * 60;
 let completedFocusSessions = 0;
 let countDownInterval = null;
 let isCountDown = false;
-let isSoundEnabled = true;
 
 function clampNumber(value, min, max, fallback) {
     const parsed = Number(value);
@@ -313,7 +310,7 @@ function getNotificationText(mode) {
 }
 
 function safePlay(audioElement) {
-    if (!audioElement || !isSoundEnabled) {
+    if (!audioElement) {
         return;
     }
 
@@ -339,16 +336,6 @@ function updateSessionCount() {
     }
 
     sessionCountElement.textContent = "#" + (completedFocusSessions + 1);
-}
-
-function updateSoundButton() {
-    if (!soundIconElement || !btnSoundElement) {
-        return;
-    }
-
-    soundIconElement.classList.toggle("fa-volume-up", isSoundEnabled);
-    soundIconElement.classList.toggle("fa-volume-mute", !isSoundEnabled);
-    btnSoundElement.setAttribute("aria-label", isSoundEnabled ? "Mute sounds" : "Unmute sounds");
 }
 
 function updateSettingsInputs() {
@@ -769,17 +756,6 @@ document.addEventListener("keydown", function (event) {
     }
 });
 
-btnSoundElement.addEventListener("click", function () {
-    isSoundEnabled = !isSoundEnabled;
-    updateSoundButton();
-
-    if (!isSoundEnabled) {
-        if (alertAudioElement) {
-            alertAudioElement.pause();
-        }
-    }
-});
-
 if (settingsFormElement) {
     settingsFormElement.addEventListener("submit", async function (event) {
         event.preventDefault();
@@ -838,7 +814,6 @@ updateSessionCount();
 updateSettingsInputs();
 renderTasks();
 applyTheme(currentMode);
-updateSoundButton();
 updateTime();
 updatePlayButton();
 
