@@ -32,7 +32,6 @@ const sessionCountElement = document.getElementById("sessionCount");
 const btnSoundElement = document.getElementById("btnSound");
 const soundIconElement = document.getElementById("soundIcon");
 const alertAudioElement = document.getElementById("audio");
-const buttonSoundElement = document.getElementById("buttonSound");
 const pomodoroElement = document.getElementById("pomodoro");
 const settingsModalElement = document.getElementById("settingsModal");
 const settingsPanelElement = document.getElementById("settingsPanel");
@@ -601,7 +600,6 @@ function setMode(mode) {
 function handleSessionComplete() {
     const completedMode = currentMode;
     stopTimer();
-    safePlay(alertAudioElement);
 
     let nextMode = "focus";
 
@@ -667,7 +665,7 @@ function applySettings(nextSettings, message, isError) {
 }
 
 btnPlayElement.addEventListener("click", function () {
-    safePlay(buttonSoundElement);
+    safePlay(alertAudioElement);
 
     if (isCountDown) {
         stopTimer();
@@ -678,32 +676,27 @@ btnPlayElement.addEventListener("click", function () {
 });
 
 btnFocusElement.addEventListener("click", function () {
-    safePlay(buttonSoundElement);
     setMode("focus");
 });
 
 btnBreakElement.addEventListener("click", function () {
-    safePlay(buttonSoundElement);
     setMode("shortBreak");
 });
 
 if (btnLongBreakElement) {
     btnLongBreakElement.addEventListener("click", function () {
-        safePlay(buttonSoundElement);
         setMode("longBreak");
     });
 }
 
 if (btnSettingsElement) {
     btnSettingsElement.addEventListener("click", function () {
-        safePlay(buttonSoundElement);
         openSettingsModal();
     });
 }
 
 if (closeSettingsButtonElement) {
     closeSettingsButtonElement.addEventListener("click", function () {
-        safePlay(buttonSoundElement);
         closeSettingsModal(true);
     });
 }
@@ -718,21 +711,18 @@ if (settingsModalElement) {
 
 if (btnAddTaskElement) {
     btnAddTaskElement.addEventListener("click", function () {
-        safePlay(buttonSoundElement);
         openTaskModal();
     });
 }
 
 if (closeTaskButtonElement) {
     closeTaskButtonElement.addEventListener("click", function () {
-        safePlay(buttonSoundElement);
         closeTaskModal(true);
     });
 }
 
 if (cancelTaskButtonElement) {
     cancelTaskButtonElement.addEventListener("click", function () {
-        safePlay(buttonSoundElement);
         closeTaskModal(true);
     });
 }
@@ -756,8 +746,6 @@ if (tasksListElement) {
         if (!taskId) {
             return;
         }
-
-        safePlay(buttonSoundElement);
 
         if (actionButtonElement.dataset.action === "complete") {
             markTaskCompleted(taskId);
@@ -789,17 +777,12 @@ btnSoundElement.addEventListener("click", function () {
         if (alertAudioElement) {
             alertAudioElement.pause();
         }
-
-        if (buttonSoundElement) {
-            buttonSoundElement.pause();
-        }
     }
 });
 
 if (settingsFormElement) {
     settingsFormElement.addEventListener("submit", async function (event) {
         event.preventDefault();
-        safePlay(buttonSoundElement);
 
         const rawSettings = readSettingsFromInputs();
         const sanitizedSettings = sanitizeSettings(rawSettings);
@@ -819,7 +802,6 @@ if (settingsFormElement) {
 if (taskFormElement) {
     taskFormElement.addEventListener("submit", function (event) {
         event.preventDefault();
-        safePlay(buttonSoundElement);
 
         const taskText = sanitizeTaskText(taskInputElement ? taskInputElement.value : "");
         if (!taskText) {
@@ -845,7 +827,6 @@ if (taskFormElement) {
 
 if (resetSettingsButtonElement) {
     resetSettingsButtonElement.addEventListener("click", function () {
-        safePlay(buttonSoundElement);
         applySettings(DEFAULT_SETTINGS, "Settings reset to default values.");
     });
 }
