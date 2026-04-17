@@ -204,7 +204,9 @@ function renderTasks() {
         completeButtonElement.className = "task-action-btn task-complete-btn";
         completeButtonElement.dataset.action = "complete";
         completeButtonElement.dataset.taskId = task.id;
-        completeButtonElement.textContent = task.completed ? "Completed" : "Mark completed";
+        completeButtonElement.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+        completeButtonElement.setAttribute("aria-label", task.completed ? "Task completed" : "Mark task completed");
+        completeButtonElement.title = task.completed ? "Completed" : "Mark completed";
         completeButtonElement.disabled = task.completed;
 
         const deleteButtonElement = document.createElement("button");
@@ -212,7 +214,9 @@ function renderTasks() {
         deleteButtonElement.className = "task-action-btn task-delete-btn";
         deleteButtonElement.dataset.action = "delete";
         deleteButtonElement.dataset.taskId = task.id;
-        deleteButtonElement.textContent = "Delete";
+        deleteButtonElement.innerHTML = '<i class="fas fa-trash" aria-hidden="true"></i>';
+        deleteButtonElement.setAttribute("aria-label", "Delete task");
+        deleteButtonElement.title = "Delete";
 
         taskActionsElement.appendChild(completeButtonElement);
         taskActionsElement.appendChild(deleteButtonElement);

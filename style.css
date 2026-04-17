@@ -293,22 +293,47 @@ body {
 }
 
 .task-action-btn {
+    width: 34px;
+    height: 34px;
     border: none;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+.task-action-btn i {
+    font-size: 14px;
+}
+
+.task-action-btn:active {
+    transform: translateY(1px);
 }
 
 .task-complete-btn {
+    background: rgba(255, 255, 255, 0.94);
+    color: #1f7a35;
+}
+
+.task-complete-btn i {
+    color: #1f7a35;
+}
+
+.task-complete-btn:hover:not(:disabled) {
     background: #fff;
-    color: #2e7d32;
 }
 
 .task-complete-btn:disabled {
-    opacity: 0.62;
+    background: #2f8f46;
+    color: #fff;
+    opacity: 1;
     cursor: default;
+}
+
+.task-complete-btn:disabled i {
+    color: #fff;
 }
 
 .task-delete-btn {
@@ -318,7 +343,8 @@ body {
 }
 
 .task-delete-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.22);
+    border-color: rgba(255, 255, 255, 0.95);
 }
 
 .task-item-completed {
@@ -552,8 +578,12 @@ body.modal-open {
     }
 
     .task-action-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .task-action-btn i {
         font-size: 13px;
-        padding: 6px 9px;
     }
 
     .add-task-btn {
