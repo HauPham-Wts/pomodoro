@@ -64,6 +64,10 @@ let completedFocusSessions = 0;
 let countDownInterval = null;
 let isCountDown = false;
 let alarmAutoStopTimeoutId = null;
+let timerEndAudioContext = null;
+let timerEndAudioSourceNode = null;
+let timerEndAudioGainNode = null;
+let isTimerEndBoostReady = false;
 
 function clampNumber(value, min, max, fallback) {
     const parsed = Number(value);
@@ -324,6 +328,35 @@ function safePlay(audioElement) {
     }
 }
 
+function ensureTimerEndBoostReady() {
+    if (isTimerEndBoostReady || !timerEndAudioElement) {
+        return;
+    }
+
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+        return;
+    }
+
+    try {
+        timerEndAudioContext = new AudioContextClass();
+        timerEndAudioSourceNode = timerEndAudioContext.createMediaElementSource(timerEndAudioElement);
+        timerEndAudioGainNode = timerEndAudioContext.createGain();
+        timerEndAudioGainNode.gain.value = 6.6;
+        timerEndAudioSourceNode.connect(timerEndAudioGainNode);
+        timerEndAudioGainNode.connect(timerEndAudioContext.destination);
+        isTimerEndBoostReady = true;
+    } catch (error) {}
+}
+
+function wakeTimerEndBoostContext() {
+    if (!timerEndAudioContext || timerEndAudioContext.state !== "suspended") {
+        return;
+    }
+
+    timerEndAudioContext.resume();
+}
+
 function stopTimerEndAlarm() {
     if (alarmAutoStopTimeoutId) {
         clearTimeout(alarmAutoStopTimeoutId);
@@ -345,6 +378,9 @@ function startTimerEndAlarm() {
     if (!timerEndAudioElement) {
         return;
     }
+
+    ensureTimerEndBoostReady();
+    wakeTimerEndBoostContext();
 
     stopTimerEndAlarm();
     timerEndAudioElement.loop = true;
@@ -695,6 +731,8 @@ function applySettings(nextSettings, message, isError) {
 }
 
 btnPlayElement.addEventListener("click", function () {
+    ensureTimerEndBoostReady();
+    wakeTimerEndBoostContext();
     safePlay(startPauseAudioElement);
 
     if (isCountDown) {
