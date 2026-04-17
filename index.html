@@ -48,7 +48,9 @@
                     <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
                 </button>
             </div>
-            <button class="add-task-btn" type="button">
+            <p id="tasksEmptyState" class="tasks-empty">No tasks yet. Add your first task.</p>
+            <ul id="tasksList" class="tasks-list" aria-live="polite" hidden></ul>
+            <button id="btnAddTask" class="add-task-btn" type="button" aria-label="Add task" aria-controls="taskModal" aria-expanded="false">
                 <i class="fas fa-circle-plus" aria-hidden="true"></i>
                 <span>Add Task</span>
             </button>
@@ -96,6 +98,29 @@
             </form>
         </section>
     </div>
+
+    <div id="taskModal" class="settings-modal" hidden>
+        <section id="taskPanel" class="task-modal-panel" role="dialog" aria-modal="true" aria-labelledby="taskTitle">
+            <div class="settings-header">
+                <h2 id="taskTitle">Add Task</h2>
+                <button id="closeTaskBtn" class="close-settings-btn" type="button" aria-label="Close add task dialog">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="taskForm" class="task-form">
+                <label class="task-field" for="taskInput">
+                    Task name
+                    <input id="taskInput" type="text" maxlength="120" placeholder="Ex: Review weekly report" required>
+                </label>
+                <div class="task-actions">
+                    <button id="cancelTaskBtn" type="button" class="settings-btn settings-btn-secondary">Cancel</button>
+                    <button id="saveTaskBtn" type="submit" class="settings-btn">Add Task</button>
+                </div>
+                <p id="taskMessage" class="task-message" aria-live="polite"></p>
+            </form>
+        </section>
+    </div>
+
     <audio id="audio" src="sounds/button_sound.mp3"></audio>
     <audio id="buttonSound" src="sounds/button_sound.mp3"></audio>
     <script src="pomodoro.js"></script>

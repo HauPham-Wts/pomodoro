@@ -1,4 +1,6 @@
 const SETTINGS_STORAGE_KEY = "pomodoro.settings.v1";
+const TASKS_STORAGE_KEY = "pomodoro.tasks.v1";
+const MAX_TASK_LENGTH = 120;
 const DEFAULT_SETTINGS = Object.freeze({
     focusMinutes: 25,
     shortBreakMinutes: 5,
@@ -44,8 +46,19 @@ const enableNotificationsInputElement = document.getElementById("enableNotificat
 const autoStartNextInputElement = document.getElementById("autoStartNextInput");
 const resetSettingsButtonElement = document.getElementById("resetSettingsBtn");
 const settingsMessageElement = document.getElementById("settingsMessage");
+const btnAddTaskElement = document.getElementById("btnAddTask");
+const tasksListElement = document.getElementById("tasksList");
+const tasksEmptyStateElement = document.getElementById("tasksEmptyState");
+const taskModalElement = document.getElementById("taskModal");
+const taskPanelElement = document.getElementById("taskPanel");
+const closeTaskButtonElement = document.getElementById("closeTaskBtn");
+const cancelTaskButtonElement = document.getElementById("cancelTaskBtn");
+const taskFormElement = document.getElementById("taskForm");
+const taskInputElement = document.getElementById("taskInput");
+const taskMessageElement = document.getElementById("taskMessage");
 
 let settings = loadSettings();
+let tasks = loadTasks();
 let currentMode = "focus";
 let totalSeconds = settings.focusMinutes * 60;
 let completedFocusSessions = 0;
@@ -93,6 +106,56 @@ function saveSettings(nextSettings) {
     try {
         localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(nextSettings));
     } catch (error) {}
+}
+
+function sanitizeTaskText(taskText) {
+    return String(taskText || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, MAX_TASK_LENGTH);
+}
+
+function loadTasks() {
+    try {
+        const storedTasks = localStorage.getItem(TASKS_STORAGE_KEY);
+        if (!storedTasks) {
+            return [];
+        }
+
+        const parsedTasks = JSON.parse(storedTasks);
+        if (!Array.isArray(parsedTasks)) {
+            return [];
+        }
+
+        return parsedTasks.map(sanitizeTaskText).filter(Boolean);
+    } catch (error) {
+        return [];
+    }
+}
+
+function saveTasks(nextTasks) {
+    try {
+        localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(nextTasks));
+    } catch (error) {}
+}
+
+function renderTasks() {
+    if (!tasksListElement || !tasksEmptyStateElement) {
+        return;
+    }
+
+    tasksListElement.innerHTML = "";
+
+    tasks.forEach(function (taskText) {
+        const taskItemElement = document.createElement("li");
+        taskItemElement.className = "task-item";
+        taskItemElement.textContent = taskText;
+        tasksListElement.appendChild(taskItemElement);
+    });
+
+    const hasTasks = tasks.length > 0;
+    tasksEmptyStateElement.hidden = hasTasks;
+    tasksListElement.hidden = !hasTasks;
 }
 
 function isNotificationSupported() {
@@ -215,8 +278,26 @@ function showSettingsMessage(message, isError) {
     settingsMessageElement.style.color = isError ? "#FFD9D9" : "#FFFFFF";
 }
 
+function showTaskMessage(message, isError) {
+    if (!taskMessageElement) {
+        return;
+    }
+
+    taskMessageElement.textContent = message;
+    taskMessageElement.style.color = isError ? "#FFD9D9" : "#FFFFFF";
+}
+
 function isSettingsModalOpen() {
     return Boolean(settingsModalElement) && !settingsModalElement.hidden;
+}
+
+function isTaskModalOpen() {
+    return Boolean(taskModalElement) && !taskModalElement.hidden;
+}
+
+function updateBodyModalState() {
+    const hasOpenModal = isSettingsModalOpen() || isTaskModalOpen();
+    document.body.classList.toggle("modal-open", hasOpenModal);
 }
 
 function openSettingsModal() {
@@ -225,7 +306,7 @@ function openSettingsModal() {
     }
 
     settingsModalElement.hidden = false;
-    document.body.classList.add("modal-open");
+    updateBodyModalState();
 
     if (btnSettingsElement) {
         btnSettingsElement.setAttribute("aria-expanded", "true");
@@ -243,7 +324,7 @@ function closeSettingsModal(restoreFocus) {
     }
 
     settingsModalElement.hidden = true;
-    document.body.classList.remove("modal-open");
+    updateBodyModalState();
 
     if (btnSettingsElement) {
         btnSettingsElement.setAttribute("aria-expanded", "false");
@@ -251,6 +332,48 @@ function closeSettingsModal(restoreFocus) {
 
     if (restoreFocus && btnSettingsElement) {
         btnSettingsElement.focus();
+    }
+}
+
+function openTaskModal() {
+    if (!taskModalElement) {
+        return;
+    }
+
+    showTaskMessage("", false);
+    taskModalElement.hidden = false;
+    updateBodyModalState();
+
+    if (btnAddTaskElement) {
+        btnAddTaskElement.setAttribute("aria-expanded", "true");
+    }
+
+    if (taskInputElement) {
+        taskInputElement.focus();
+        taskInputElement.select();
+    }
+}
+
+function closeTaskModal(restoreFocus) {
+    if (!taskModalElement) {
+        return;
+    }
+
+    taskModalElement.hidden = true;
+    updateBodyModalState();
+
+    if (btnAddTaskElement) {
+        btnAddTaskElement.setAttribute("aria-expanded", "false");
+    }
+
+    if (taskFormElement) {
+        taskFormElement.reset();
+    }
+
+    showTaskMessage("", false);
+
+    if (restoreFocus && btnAddTaskElement) {
+        btnAddTaskElement.focus();
     }
 }
 
@@ -270,6 +393,10 @@ function applyTheme(mode) {
 
     if (settingsPanelElement) {
         settingsPanelElement.style.backgroundColor = palette.card;
+    }
+
+    if (taskPanelElement) {
+        taskPanelElement.style.backgroundColor = palette.card;
     }
 }
 
@@ -480,9 +607,43 @@ if (settingsModalElement) {
     });
 }
 
+if (btnAddTaskElement) {
+    btnAddTaskElement.addEventListener("click", function () {
+        safePlay(buttonSoundElement);
+        openTaskModal();
+    });
+}
+
+if (closeTaskButtonElement) {
+    closeTaskButtonElement.addEventListener("click", function () {
+        safePlay(buttonSoundElement);
+        closeTaskModal(true);
+    });
+}
+
+if (cancelTaskButtonElement) {
+    cancelTaskButtonElement.addEventListener("click", function () {
+        safePlay(buttonSoundElement);
+        closeTaskModal(true);
+    });
+}
+
+if (taskModalElement) {
+    taskModalElement.addEventListener("click", function (event) {
+        if (event.target === taskModalElement) {
+            closeTaskModal(false);
+        }
+    });
+}
+
 document.addEventListener("keydown", function (event) {
     if (event.key === "Escape" && isSettingsModalOpen()) {
         closeSettingsModal(true);
+        return;
+    }
+
+    if (event.key === "Escape" && isTaskModalOpen()) {
+        closeTaskModal(true);
     }
 });
 
@@ -521,6 +682,29 @@ if (settingsFormElement) {
     });
 }
 
+if (taskFormElement) {
+    taskFormElement.addEventListener("submit", function (event) {
+        event.preventDefault();
+        safePlay(buttonSoundElement);
+
+        const taskText = sanitizeTaskText(taskInputElement ? taskInputElement.value : "");
+        if (!taskText) {
+            showTaskMessage("Please enter a task name.", true);
+
+            if (taskInputElement) {
+                taskInputElement.focus();
+            }
+
+            return;
+        }
+
+        tasks.unshift(taskText);
+        saveTasks(tasks);
+        renderTasks();
+        closeTaskModal(true);
+    });
+}
+
 if (resetSettingsButtonElement) {
     resetSettingsButtonElement.addEventListener("click", function () {
         safePlay(buttonSoundElement);
@@ -529,9 +713,11 @@ if (resetSettingsButtonElement) {
 }
 
 saveSettings(settings);
+saveTasks(tasks);
 notiElement.textContent = getNotificationText(currentMode);
 updateSessionCount();
 updateSettingsInputs();
+renderTasks();
 applyTheme(currentMode);
 updateSoundButton();
 updateTime();
@@ -539,4 +725,8 @@ updatePlayButton();
 
 if (btnSettingsElement) {
     btnSettingsElement.setAttribute("aria-expanded", "false");
+}
+
+if (btnAddTaskElement) {
+    btnAddTaskElement.setAttribute("aria-expanded", "false");
 }
