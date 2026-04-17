@@ -115,6 +115,44 @@ function sanitizeTaskText(taskText) {
         .slice(0, MAX_TASK_LENGTH);
 }
 
+function createTaskId() {
+    return "task-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+}
+
+function sanitizeTask(rawTask) {
+    if (typeof rawTask === "string") {
+        const text = sanitizeTaskText(rawTask);
+        if (!text) {
+            return null;
+        }
+
+        return {
+            id: createTaskId(),
+            text: text,
+            completed: false
+        };
+    }
+
+    if (!rawTask || typeof rawTask !== "object") {
+        return null;
+    }
+
+    const text = sanitizeTaskText(rawTask.text);
+    if (!text) {
+        return null;
+    }
+
+    const taskId = typeof rawTask.id === "string" && rawTask.id.trim()
+        ? rawTask.id
+        : createTaskId();
+
+    return {
+        id: taskId,
+        text: text,
+        completed: Boolean(rawTask.completed)
+    };
+}
+
 function loadTasks() {
     try {
         const storedTasks = localStorage.getItem(TASKS_STORAGE_KEY);
@@ -127,7 +165,7 @@ function loadTasks() {
             return [];
         }
 
-        return parsedTasks.map(sanitizeTaskText).filter(Boolean);
+        return parsedTasks.map(sanitizeTask).filter(Boolean);
     } catch (error) {
         return [];
     }
@@ -146,16 +184,83 @@ function renderTasks() {
 
     tasksListElement.innerHTML = "";
 
-    tasks.forEach(function (taskText) {
+    tasks.forEach(function (task) {
         const taskItemElement = document.createElement("li");
         taskItemElement.className = "task-item";
-        taskItemElement.textContent = taskText;
+
+        if (task.completed) {
+            taskItemElement.classList.add("task-item-completed");
+        }
+
+        const taskTextElement = document.createElement("span");
+        taskTextElement.className = "task-item-text";
+        taskTextElement.textContent = task.text;
+
+        const taskActionsElement = document.createElement("div");
+        taskActionsElement.className = "task-item-actions";
+
+        const completeButtonElement = document.createElement("button");
+        completeButtonElement.type = "button";
+        completeButtonElement.className = "task-action-btn task-complete-btn";
+        completeButtonElement.dataset.action = "complete";
+        completeButtonElement.dataset.taskId = task.id;
+        completeButtonElement.textContent = task.completed ? "Completed" : "Mark completed";
+        completeButtonElement.disabled = task.completed;
+
+        const deleteButtonElement = document.createElement("button");
+        deleteButtonElement.type = "button";
+        deleteButtonElement.className = "task-action-btn task-delete-btn";
+        deleteButtonElement.dataset.action = "delete";
+        deleteButtonElement.dataset.taskId = task.id;
+        deleteButtonElement.textContent = "Delete";
+
+        taskActionsElement.appendChild(completeButtonElement);
+        taskActionsElement.appendChild(deleteButtonElement);
+        taskItemElement.appendChild(taskTextElement);
+        taskItemElement.appendChild(taskActionsElement);
         tasksListElement.appendChild(taskItemElement);
     });
 
     const hasTasks = tasks.length > 0;
     tasksEmptyStateElement.hidden = hasTasks;
     tasksListElement.hidden = !hasTasks;
+}
+
+function markTaskCompleted(taskId) {
+    let hasChanged = false;
+
+    tasks = tasks.map(function (task) {
+        if (task.id !== taskId || task.completed) {
+            return task;
+        }
+
+        hasChanged = true;
+        return {
+            ...task,
+            completed: true
+        };
+    });
+
+    if (!hasChanged) {
+        return;
+    }
+
+    saveTasks(tasks);
+    renderTasks();
+}
+
+function deleteTask(taskId) {
+    const nextTasks = tasks.filter(function (task) {
+        return task.id !== taskId;
+    });
+
+    if (nextTasks.length === tasks.length) {
+        return;
+    }
+
+    tasks = nextTasks;
+    saveTasks(tasks);
+    renderTasks();
 }
 
 function isNotificationSupported() {
@@ -636,6 +741,31 @@ if (taskModalElement) {
     });
 }
 
+if (tasksListElement) {
+    tasksListElement.addEventListener("click", function (event) {
+        const actionButtonElement = event.target.closest("button[data-action]");
+        if (!actionButtonElement) {
+            return;
+        }
+
+        const taskId = actionButtonElement.dataset.taskId;
+        if (!taskId) {
+            return;
+        }
+
+        safePlay(buttonSoundElement);
+
+        if (actionButtonElement.dataset.action === "complete") {
+            markTaskCompleted(taskId);
+            return;
+        }
+
+        if (actionButtonElement.dataset.action === "delete") {
+            deleteTask(taskId);
+        }
+    });
+}
+
 document.addEventListener("keydown", function (event) {
     if (event.key === "Escape" && isSettingsModalOpen()) {
         closeSettingsModal(true);
@@ -698,7 +828,11 @@ if (taskFormElement) {
             return;
         }
 
-        tasks.unshift(taskText);
+        tasks.unshift({
+            id: createTaskId(),
+            text: taskText,
+            completed: false
+        });
         saveTasks(tasks);
         renderTasks();
         closeTaskModal(true);

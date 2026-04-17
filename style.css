@@ -274,6 +274,59 @@ body {
     padding: 10px 12px;
     font-size: 18px;
     line-height: 1.3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.task-item-text {
+    flex: 1;
+    word-break: break-word;
+}
+
+.task-item-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.task-action-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.task-complete-btn {
+    background: #fff;
+    color: #2e7d32;
+}
+
+.task-complete-btn:disabled {
+    opacity: 0.62;
+    cursor: default;
+}
+
+.task-delete-btn {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.62);
+}
+
+.task-delete-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.task-item-completed {
+    opacity: 0.82;
+}
+
+.task-item-completed .task-item-text {
+    text-decoration: line-through;
 }
 
 .settings-modal {
@@ -487,6 +540,20 @@ body.modal-open {
     .tasks-empty,
     .task-item {
         font-size: 17px;
+    }
+
+    .task-item {
+        align-items: flex-start;
+    }
+
+    .task-item-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .task-action-btn {
+        font-size: 13px;
+        padding: 6px 9px;
     }
 
     .add-task-btn {
